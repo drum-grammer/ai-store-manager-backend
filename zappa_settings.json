@@ -1,0 +1,58 @@
+{
+    "dev": {
+        "app_function": "main.app",
+        "keep_warm": true,
+        "slim_handler": true,
+        "exclude_glob": ["*.pickle", "*.xlsx", "*.zip"],
+        "memory_size": 10240,
+        "ephemeral_storage": { "Size": 10240 },
+        "aws_region": "ap-northeast-2",
+        "profile_name": "52g-dev",
+        "project_name": "jk-genai-template-flask",
+        "runtime": "python3.10",
+        "s3_bucket": "jk-backend-deployment",
+        "environment_variables": {
+        },
+        "cors": true,
+        "timeout_seconds": 900,
+        "lambda_concurrency": 32,
+        "log_level": "WARN",
+        "extra_permissions": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "ssm:GetParameter",
+              "dynamodb:DescribeStream",
+              "dynamodb:GetRecords",
+              "dynamodb:GetShardIterator",
+              "dynamodb:ListStreams",
+              "bedrock:InvokeModel",
+              "ses:SendEmail"
+            ],
+            "Resource": "*"
+            }
+        ],
+        "events": [
+//            {
+//                "function": "notice.hook_dynamodb",
+//                "event_source": {
+//                    "arn":  "arn:aws:dynamodb:ap-northeast-2:296938968959:table/52genie-qna-history/stream/2023-07-24T03:09:05.044",
+//                    "enabled": true,
+//                    "events": [
+//                        "*"
+//                    ]
+//                },
+//                "enabled": true
+//            },
+            {
+                  "function": "notice.hook_s3",
+                  "event_source": {
+                      "arn":  "arn:aws:s3:::zappa-workchat-test",
+                      "events": [
+                          "s3:ObjectCreated:*"
+                      ]
+                  }
+              }
+        ]
+    }
+}
