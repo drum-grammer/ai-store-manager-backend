@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from flask_restx import Namespace, fields, Resource
 
 from api.query.service import query_to_llm
@@ -19,3 +21,11 @@ class QueryCls(Resource):
     @query_api.marshal_with(query_message_response, envelope='data')
     def post(self):
         return {'result': query_to_llm(query_api.payload['message'])}
+
+
+@query_api.route('/health-check', strict_slashes=False)
+class HealthCheck(Resource):
+    @query_api.doc(security=None, description='헬스 체크 API')
+    @query_api.response(code=HTTPStatus.OK.value, description='서버가 정상적으로 구동 되고 있음')
+    def get(self) -> HTTPStatus:
+        return HTTPStatus.OK

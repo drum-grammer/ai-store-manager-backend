@@ -33,26 +33,16 @@
             }
         ],
         "events": [
-//            {
-//                "function": "notice.hook_dynamodb",
-//                "event_source": {
-//                    "arn":  "arn:aws:dynamodb:ap-northeast-2:296938968959:table/52genie-qna-history/stream/2023-07-24T03:09:05.044",
-//                    "enabled": true,
-//                    "events": [
-//                        "*"
-//                    ]
-//                },
-//                "enabled": true
-//            },
             {
                   "function": "notice.hook_s3",
                   "event_source": {
-                      "arn":  "arn:aws:s3:::zappa-workchat-test",
+                      "arn":  "arn:aws:s3:::jk-storage",
                       "events": [
                           "s3:ObjectCreated:*"
                       ]
                   }
               }
-        ]
+        ],
+        "health_check": "llm/health-check"
     }
 }
