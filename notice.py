@@ -1,4 +1,4 @@
-from api.query.service import insert_to_vector_store
+from api.llm.service import insert_to_vector_store
 
 
 def hook_dynamodb(event, context):

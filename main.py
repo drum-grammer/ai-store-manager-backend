@@ -28,9 +28,9 @@ def create_app():
     jwt = JWTManager()
     jwt.init_app(flask_app)
 
-    from api.query.controllers import query_api
+    from api.llm.controllers import llm_api
 
-    api.add_namespace(query_api)
+    api.add_namespace(llm_api)
 
     CORS(flask_app)
 
