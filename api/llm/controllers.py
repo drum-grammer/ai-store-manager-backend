@@ -2,11 +2,12 @@ from http import HTTPStatus
 
 from flask_restx import Namespace, fields, Resource
 
-from api.llm.service import query_to_llm
+from api.llm.service import query_to_llm, get_query_result
 
 llm_api = Namespace('llm', description='메시지 API')
 
 query_message_request = llm_api.model('query_message_request', {
+    'query_id': fields.String(required=True, title='질문 ID'),
     'message': fields.String(required=True, title='질문'),
 })
 
@@ -16,11 +17,29 @@ query_message_response = llm_api.model('query_message_response', {
 
 
 @llm_api.route("/query")
-class QueryCls(Resource):
+class LLMQuery(Resource):
     @llm_api.expect(query_message_request)
-    @llm_api.marshal_with(query_message_response, envelope='data')
+    @llm_api.marshal_with(query_message_response)
     def post(self):
-        return {'result': query_to_llm(llm_api.payload['message'])}
+        return {
+            'result': query_to_llm(
+                llm_api.payload['query_id'],
+                llm_api.payload['message']
+            )
+        }
+
+
+query_result_request = llm_api.model('query_result_request', {
+    'query_id': fields.String(required=True, title='질문 ID'),
+})
+
+
+@llm_api.route("/query-result/<string:query_id>")
+class QueryResult(Resource):
+    @llm_api.expect(query_result_request)
+    @llm_api.marshal_with(query_message_response)
+    def get(self):
+        return {'result': get_query_result(llm_api.payload['query_id'])}
 
 
 @llm_api.route('/health-check', strict_slashes=False)

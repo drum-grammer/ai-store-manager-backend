@@ -1,32 +1,53 @@
-from azure.search.documents.indexes._generated.models import SemanticSettings, SemanticConfiguration, PrioritizedFields, \
-    SemanticField
-from langchain.chains import RetrievalQA
+from azure.search.documents.indexes._generated.models import SemanticSettings, SemanticConfiguration, \
+    PrioritizedFields, SemanticField
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.embeddings import OpenAIEmbeddings, AzureOpenAIEmbeddings
 from langchain_community.vectorstores.azuresearch import AzureSearch
 
+from api.llm.models import AnswerHistoryModel
+from common.constant.prompt_template import prompt_template
+from common.util.id_generator import generate_uuid
 from constants import AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_EMBEDDING_DEPLOYED_MODEL, \
     AZURE_OPENAI_API_VERSION, AZURE_SEARCH_INDEX_NAME, AZURE_SEARCH_ADMIN_KEY, AZURE_SEARCH_SERVICE_ENDPOINT
 from utils.langchain_util import get_chat_azure_openai_client, LLMNames
 from utils.s3_utils import get_object_contents
 
 
-def query_to_llm(query: str) -> str:
+def query_to_llm(query_id: str, question: str) -> str:
     llm = get_chat_azure_openai_client(
         api_key=AZURE_OPENAI_API_KEY,
         endpoint=AZURE_OPENAI_ENDPOINT,
         deployment_name=LLMNames.gpt_4,  # gpt-4 32k
+        temperature=0.8,
         max_tokens=4096,
     )
 
-    qa = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",  # 이값은 밑에서 설명드립니다.
-        retriever=get_vector_store().as_retriever()
+    prompt = PromptTemplate(
+        template=prompt_template,
+        input_variables=['question']  # {question}을 치환한다.
     )
+    llm_chain = LLMChain(
+        prompt=prompt,
+        llm=llm
+    )
+    answer = llm_chain.run(question)
 
-    return qa.run(query)
+    answer_model = AnswerHistoryModel(
+        id=query_id,
+        question=question,
+        answer=answer,
+    )
+    answer_model.save()
+
+    return answer
+
+
+def get_query_result(query_id: str) -> str:
+    answer_model = AnswerHistoryModel.get(hash_key=query_id)
+    return answer_model.answer
 
 
 def get_vector_store():
@@ -40,7 +61,8 @@ def get_vector_store():
         api_version=AZURE_OPENAI_API_VERSION,
     )
 
-    # Create an index in Azure Search
+    # Create an index in Azure Searc
+    # h
     vector_store: AzureSearch = AzureSearch(
         azure_search_endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
         azure_search_key=AZURE_SEARCH_ADMIN_KEY,

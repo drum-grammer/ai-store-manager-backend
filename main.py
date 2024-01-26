@@ -15,14 +15,15 @@ authorizations = {
 
 def create_app():
     flask_app = Flask(__name__)
-    api = Api(flask_app,
-              authorizations=authorizations,
-              security='user_token',
-              doc='/swagger',
-              title='GenAI Template API',
-              version='1.0',
-              description='GenAI Template API'
-              )
+    api = Api(
+        flask_app,
+        authorizations=authorizations,
+        security='user_token',
+        doc='/swagger',
+        title='AI STORE MANAGER API',
+        version='1.0',
+        description='AI Store Manager API'
+    )
     flask_app.config["PROPAGATE_EXCEPTIONS"] = True
     flask_app.config["JWT_SECRET_KEY"] = 'this is key.'  # 시크릿은 비밀로 해야합니다.
     jwt = JWTManager()
