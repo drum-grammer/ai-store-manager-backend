@@ -1,5 +1,7 @@
-from pynamodb.attributes import UnicodeAttribute, UTCDateTimeAttribute, BooleanAttribute, MapAttribute, ListAttribute
+from pynamodb.attributes import (BooleanAttribute, ListAttribute, MapAttribute,
+                                 UnicodeAttribute, UTCDateTimeAttribute)
 from pynamodb.models import Model as DDBModel
+
 from utils.logging_util import logger
 
 
@@ -13,7 +15,7 @@ class AnswerHistoryModel(DDBModel):
         table_name = 'ai_store_manager_answer_history'
         region = 'ap-northeast-2'
 
-    id = UnicodeAttribute(hash_key=True)
+    answer_id = UnicodeAttribute(hash_key=True)
     question = UnicodeAttribute(null=False)
     answer = UnicodeAttribute(null=False)
 

@@ -38,8 +38,8 @@ query_result_request = llm_api.model('query_result_request', {
 class QueryResult(Resource):
     @llm_api.expect(query_result_request)
     @llm_api.marshal_with(query_message_response)
-    def get(self):
-        return {'result': get_query_result(llm_api.payload['query_id'])}
+    def get(self, query_id):
+        return {'result': get_query_result(query_id)}
 
 
 @llm_api.route('/health-check', strict_slashes=False)
